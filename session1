@@ -1,4 +1,6 @@
+#https://merenlab.org/2015/11/28/visualizing-from-a-server
 ssh -L 8080:localhost:8080 smomw536@nesh-fe.rz.uni-kiel.de
+
 #useful for quality trimming and trimming adapters, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4103590/
 #http://www.usadellab.org/cms/index.php?page=trimmomatic
 conda create -n trimmomatic -c bioconda trimmomatic
