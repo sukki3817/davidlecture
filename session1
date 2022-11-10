@@ -1,0 +1,71 @@
+ssh -L 8080:localhost:8080 smomw536@nesh-fe.rz.uni-kiel.de
+#useful for quality trimming and trimming adapters, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4103590/
+#http://www.usadellab.org/cms/index.php?page=trimmomatic
+conda create -n trimmomatic -c bioconda trimmomatic
+
+#used for assembly, memory efficient, https://github.com/voutcn/megahit
+conda create -n megahit -c bioconda megahit
+#used for assembly, better if not too much data (less memory efficient)
+conda create -n spades -c bioconda spades, https://github.com/ablab/spades
+
+#extract rRNA genes, https://github.com/tseemann/barrnap
+conda create -n barrnap -c bioconda barrnap
+
+#various useful sequence transformations, https://github.com/lh3/seqtk
+conda create -n seqtk -c bioconda seqtk
+
+#useful for clustering sequences such as assemblies from different samples, https://sites.google.com/view/cd-hit
+conda create -n cdhit -c bioconda cdhit
+
+#good for mapping reads, https://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+conda create -n bowtie2 -c bioconda bowtie2
+
+#good for mapping reads,https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbmap-guide/
+conda create -n bbmap -c bioconda bbmap
+
+#good for annotation, we will add database later, http://hmmer.org/
+conda create -n hmmer -c bioconda hmmer
+
+#good for annotation, we will add database later, http://eggnog-mapper.embl.de/
+conda create -n eggnog -c bioconda eggnog-mapper
+
+#good for assigning taxonomy to genomes, https://github.com/Ecogenomics/GTDBTk, https://gtdb.ecogenomic.org/
+conda create -n gtdbtk -c conda-forge -c bioconda gtdbtk
+mkdir class
+cd $WORK/class
+#couple of hours
+sbatch -p data -t 24:00:00 --mem=100000 -J cat -o data.out -e data.err -n 1 --wrap="wget https://data.gtdb.ecogenomic.org/releases/latest/auxillary_files/gtdbtk_v2_data.tar.gz"
+tar xvzf gtdbtk_v2_data.tar.gz
+
+#We will try checkm2, https://github.com/chklovski/CheckM2
+git clone --recursive https://github.com/chklovski/checkm2.git
+cd checkm2
+conda env create -n checkm2 -f checkm2.yml
+conda activate checkm2
+python setup.py install
+
+cd $WORK/class
+checkm2 database --download --path $WORK/class/checkm2
+
+#can also install checkm just in case, https://ecogenomics.github.io/CheckM/
+conda create -n checkm python=3.9
+conda activate checkm
+conda install numpy matplotlib pysam
+conda install hmmer prodigal pplacer
+pip3 install checkm-genome
+
+#CheckM relies on a number of precalculated data files which can be downloaded from https://data.ace.uq.edu.au/public/CheckM_databases/ and must be decompress into a directory. 
+
+#you should do this in your work directory so it doesn't take up too much space.
+
+cd $WORK/databases/
+
+wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
+
+#you can type 'ls' to see if it is there
+
+tar -xf checkm_data_2015_01_16.tar.gz
+
+The path to this data can be set using the CHECKM_DATA_PATH environmental variable, e.g.:
+
+export CHECKM_DATA_PATH=$WORK/class/
