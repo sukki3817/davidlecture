@@ -38,6 +38,9 @@ cd $WORK/class
 #couple of hours
 sbatch -p data -t 24:00:00 --mem=100000 -J cat -o data.out -e data.err -n 1 --wrap="wget https://data.gtdb.ecogenomic.org/releases/latest/auxillary_files/gtdbtk_v2_data.tar.gz"
 tar xvzf gtdbtk_v2_data.tar.gz
+conda activate gtdbtk
+GTDBTK_DATA_PATH=$WORK/class/release207_v2/
+gtdbtk
 
 #We will try checkm2, https://github.com/chklovski/CheckM2
 git clone --recursive https://github.com/chklovski/checkm2.git
