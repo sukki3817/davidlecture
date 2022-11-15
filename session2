@@ -12,5 +12,32 @@ ls -thrl /gxfs_work1/cau/sulky231/data_analysis/
 zcat /gxfs_work1/cau/sulky231/data/BB04* | head -n 4
 ###use the header, count the number of reads in each sample 
 zgrep -c "@A00556:330:HMCLCDRX2" /gxfs_work1/cau/sulky231/data/*R1*gz
+##/gxfs_work1/cau/sulky231/data/BB04_1m_spike.R1.fastq.gz:21359413
+##/gxfs_work1/cau/sulky231/data/BB04_25m_spike.R1.fastq.gz:18973661
+##/gxfs_work1/cau/sulky231/data/BB04_55m_spike.R1.fastq.gz:39062029
+##/gxfs_work1/cau/sulky231/data/BB04_70m_spike.R1.fastq.gz:43310188
+##/gxfs_work1/cau/sulky231/data/BB23_60m_spike.R1.fastq.gz:42258580
+##/gxfs_work1/cau/sulky231/data/GB96_150m_spike.R1.fastq.gz:26468603
+##/gxfs_work1/cau/sulky231/data/GB96_1m_spike.R1.fastq.gz:22349374
+##/gxfs_work1/cau/sulky231/data/GB96_25m_spike.R1.fastq.gz:22675362
+##/gxfs_work1/cau/sulky231/data/GB96_50m_spike.R1.fastq.gz:27198472
+##/gxfs_work1/cau/sulky231/data/Hackflex_Blank.R1.fastq.gz:735
+##/gxfs_work1/cau/sulky231/data/KBP568_Jan_25m_nospike.R1.fastq.gz:45560313
+##/gxfs_work1/cau/sulky231/data/KBP569_Feb_25m_nospike.R1.fastq.gz:36224875
+##/gxfs_work1/cau/sulky231/data/KBP_Aug_25m_nospike.R1.fastq.gz:41951464
+##/gxfs_work1/cau/sulky231/data/KBP_July_25m_nospike.R1.fastq.gz:26739455
+##/gxfs_work1/cau/sulky231/data/KBP_Mar_25m_nospike.R1.fastq.gz:34277232
+##/gxfs_work1/cau/sulky231/data/KBP_May_25m_nospike.R1.fastq.gz:32360542
+
+mkdir data_analysis
+cd data_analysis
+cp /gxfs_work1/cau/sulky231/data_analysis/sample.names .
+
+#trimming, cutting adapters , takes 30min per sample
+conda activate trimmomatic
+for i in `cat sample.names`
+do
+sbatch -p cluster -t 1:00:00 --mem=100000 -J cat -o trim.out -e trim.err -n 30 --wrap="trimmomatic PE -threads 30 /gxfs_work1/cau/sulky231/data/$i.R1.fastq.gz /gxfs_work1/cau/sulky231/data/$i.R2.fastq.gz paired-$i.R1.fastq.gz unpaired-$i.R1.fastq.gz paired-$i.R2.fastq.gz unpaired-$i.R2.fastq.gz ILLUMINACLIP:$HOME/miniconda3/envs/trimmomatic/share/trimmomatic-0.39-2/adapters/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:50:30 MINLEN:50"
+done
 
 
