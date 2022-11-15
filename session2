@@ -1,0 +1,16 @@
+#getting to the working dir
+cd class/session_2/
+## i can also login to the account 
+###sulky231@nesh-fe.rz.uni-kiel.de , password: ooGh4huli
+
+#checking where is the data
+ls -thrl /gxfs_work1/cau/sulky231/data
+ls -thrl /gxfs_work1/cau/sulky231/data_analysis/
+
+#we can also count the number of reads in each sample, let's do it for just the forward reads (R1) because the reverse will match.
+###check the header
+zcat /gxfs_work1/cau/sulky231/data/BB04* | head -n 4
+###use the header, count the number of reads in each sample 
+zgrep -c "@A00556:330:HMCLCDRX2" /gxfs_work1/cau/sulky231/data/*R1*gz
+
+
