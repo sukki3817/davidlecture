@@ -40,4 +40,20 @@ do
 sbatch -p cluster -t 1:00:00 --mem=100000 -J cat -o trim.out -e trim.err -n 30 --wrap="trimmomatic PE -threads 30 /gxfs_work1/cau/sulky231/data/$i.R1.fastq.gz /gxfs_work1/cau/sulky231/data/$i.R2.fastq.gz paired-$i.R1.fastq.gz unpaired-$i.R1.fastq.gz paired-$i.R2.fastq.gz unpaired-$i.R2.fastq.gz ILLUMINACLIP:$HOME/miniconda3/envs/trimmomatic/share/trimmomatic-0.39-2/adapters/NexteraPE-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:50:30 MINLEN:50"
 done
 
+cat /gxfs_work1/cau/sulky231/data_analysis/spades.500.20.*/contigs.fasta > all.spades.contigs.fasta
+
+conda activate seqtk
+seqtk seq -L 5000 all.spades.contigs.fasta > 5k.all.spades.contigs.fasta
+conda deactivate
+
+conda activate cdhit
+sbatch -p cluster -t 12:00:00 --mem=100000 -J cd -o cd.out -e cd.err -n 30 --wrap="cd-hit-est -M 100000 -T 30 -c 0.99 -i 5k.all.spades.contigs.fasta -o cdhit.5k.all.spades.contigs.fasta"
+
+
+conda activate anvio-7.1
+anvi-script-reformat-fasta --simplify-names --prefix c -o rename.cdhit.5k.all.spades.contigs.fasta cdhit.5k.all.spades.contigs.fasta
+
+
+
+
 
