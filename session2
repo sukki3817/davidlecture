@@ -46,6 +46,7 @@ conda activate seqtk
 seqtk seq -L 5000 all.spades.contigs.fasta > 5k.all.spades.contigs.fasta
 conda deactivate
 
+#Clustering with cd-hit-est
 conda activate cdhit
 sbatch -p cluster -t 12:00:00 --mem=100000 -J cd -o cd.out -e cd.err -n 30 --wrap="cd-hit-est -M 100000 -T 30 -c 0.99 -i 5k.all.spades.contigs.fasta -o cdhit.5k.all.spades.contigs.fasta"
 
@@ -53,7 +54,29 @@ sbatch -p cluster -t 12:00:00 --mem=100000 -J cd -o cd.out -e cd.err -n 30 --wra
 conda activate anvio-7.1
 anvi-script-reformat-fasta --simplify-names --prefix c -o rename.cdhit.5k.all.spades.contigs.fasta cdhit.5k.all.spades.contigs.fasta
 
+sbatch -p cluster -t 1:00:00 --mem=100000 -J build -o build.out -e build.err -n 1 --wrap="bowtie2-build rename.cdhit.5k.all.spades.contigs.fasta rename.cdhit.5k.all.spades.contigs.fasta.bt"
+
+for i in `cat sample.names`
+do
+sbatch -p cluster -t 2:00:00 --mem=100000 -J bow -o bow.out -e bow.err -n 24 --wrap="bowtie2 --threads 24 -x rename.cdhit.5k.all.spades.contigs.fasta.bt -1 paired-$i.R1.fastq.gz -2 paired-$i.R1.fastq.gz --no-unal -S $i.rename.cdhit.5k.all.spades.contigs.fasta.bt.sam"
+done
 
 
+conda activate anvio-7.1
+for i in `cat sample.names`
+do
+sbatch -p cluster -t 12:00:00 --mem=100000 -J cat -o sp.out -e sp.err -n 1 --wrap="anvi-init-bam -o $i.rename.cdhit.5k.all.spades.contigs.fasta.bt.sam.bam $i.rename.cdhit.5k.all.spades.contigs.fasta.bt.sam"
+done
 
+#Binning with metabat
+##metabat requires a gzipped contigs file
+sbatch -n 20 -J gzip -o gzip.out -e gzip.err --wrap="gzip rename.cdhit.5k.all.spades.contigs.fasta"
+##prep for binning by metabat, 3 minutes 
+sbatch -n 20 -J jgisum -o jgi.out -e jgi.err --wrap="jgi_summarize_bam_contig_depths --outputDepth depth_file_for_metabat.spades.txt *bam"
+
+ 
+cp /gxfs_work1/cau/sulky231/data_analysis/rename.cdhit.5k.all.spades.contigs.fasta.db .
+cp /gxfs_work1/cau/sulky231/data_analysis/merged_samples/PROFILE.db .
+
+anvi-interactive -c rename.cdhit.5k.all.spades.contigs.fasta.db -i merged_samples/PROFILE.db --server-only -P 8080
 
