@@ -78,5 +78,9 @@ sbatch -n 20 -J jgisum -o jgi.out -e jgi.err --wrap="jgi_summarize_bam_contig_de
 cp /gxfs_work1/cau/sulky231/data_analysis/rename.cdhit.5k.all.spades.contigs.fasta.db .
 cp /gxfs_work1/cau/sulky231/data_analysis/merged_samples/PROFILE.db .
 
-anvi-interactive -c rename.cdhit.5k.all.spades.contigs.fasta.db -i merged_samples/PROFILE.db --server-only -P 8080
+ssh -L 8080:localhost:8080 smomw536@nesh-fe.rz.uni-kiel.de
+anvi-interactive -c rename.cdhit.5k.all.spades.contigs.fasta.db -p merged_samples/PROFILE.db --server-only -P 8080
+
+
+
 
