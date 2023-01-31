@@ -1,0 +1,5 @@
+#eh? lost server weird
+ksookyoung$ ssh -L 8080:localhost:8089 smomw536@nesh-fe.rz.uni-kiel.de 
+conda create -n prokka -c bioconda prokka
+mkdir prokka_results
+scp sulky231@nesh-fe.rz.uni-kiel.de:/gxfs_work1/cau/sulky231/data_analysis/prokka_results/*ffn prokka_results/
